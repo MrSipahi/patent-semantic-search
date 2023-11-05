@@ -43,7 +43,7 @@ Bu API, vektör tabanlı metin araması yapmak için kullanılan bir Flask RESTf
 
 #### Endpoint Search
 
-```http
+```
   POST /patent/search
 ```
 
@@ -78,7 +78,7 @@ Body
 ```
 
 #### Endpoint Get Parent
-```http
+```
   GET /patent/<patent_id>
 ```
 
