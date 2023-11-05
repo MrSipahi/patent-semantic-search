@@ -112,6 +112,7 @@ class UrlScraper:
 class PatentDataExtractor:
 
     def __init__(self) -> None:
+        load_dotenv(".env")
         self.vector_model = os.getenv("VECTOR_MODEL", "pritamdeka/BioBERT-mnli-snli-scinli-scitail-mednli-stsb")
         self.vector_embedding = VectorEmbeddingProvider(self.vector_model)
 
