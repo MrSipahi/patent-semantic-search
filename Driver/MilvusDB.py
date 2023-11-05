@@ -10,8 +10,10 @@ class MilvusDB:
         db = os.getenv("MILVUS_DB", "default")
         host = os.getenv("MILVUS_HOST", "localhost")
         port = os.getenv("MILVUS_PORT", "19530")
+        user = os.getenv("MILVUS_USER", "")
+        password = os.getenv("MILVUS_PASSWORD", "")
 
-        connections.connect(db, host=host, port=port)
+        connections.connect(db, host=host, port=port, user=user, password=password)
     
     def search(self,collection_name:str, search_params:dict):
         col = Collection(collection_name)
