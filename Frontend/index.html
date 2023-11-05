@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+
+<body>
+
+
+    <header data-bs-theme="dark">
+        <div class="navbar navbar-dark bg-dark shadow-sm">
+            <div class="container">
+
+            </div>
+        </div>
+    </header>
+
+    <main>
+
+        <section class="text-center container">
+            <div class="row py-lg-5">
+                <div class="col-lg-6 col-md-8 mx-auto">
+                    <h1 class="fw-light">Patent Arama</h1>
+
+                    <p class="lead text-body-secondary">Aradığınız patent bilgilerini bulmak için aşağıdaki arama kutusuna bir şeyler yazın ve "Ara" butonuna basın.</p>
+                    
+
+
+
+                    <form class="d-flex" role="search">
+                        <input class="form-control me-2" type="search" id="search-input" placeholder="Ara" aria-label="Search">
+                        <button class="btn btn-outline-success"  id="search-button" type="submit">Ara</button>
+                        <button id="loading-spinner"  class="btn btn-outline-success" type="button" style="display: none;" disabled>
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Loading...
+                          </button>
+                    </form>
+                    
+                    <div class="m-4">
+                        <p class="lead text-body-secondary">En alakalı sonuçları test etmek için aşağıda bulunan modeller ile arama yapabilirsiniz</p>
+                        
+                        <input type="radio" class="btn-check" name="options-base" id="option5" value="pritamdeka/BioBERT-mnli-snli-scinli-scitail-mednli-stsb" autocomplete="off" checked>
+                        <label class="btn" for="option5">pritamdeka/BioBERT-mnli-snli-scinli-scitail-mednli-stsb</label>
+
+                        <input type="radio" class="btn-check" name="options-base" id="option6" value="FremyCompany/BioLORD-STAMB2-v1" autocomplete="off">
+                        <label class="btn" for="option6">FremyCompany/BioLORD-STAMB2-v1</label>
+
+                        <input type="radio" class="btn-check" name="options-base" id="option7" value="pritamdeka/PubMedBERT-mnli-snli-scinli-scitail-mednli-stsb" autocomplete="off">
+                        <label class="btn"for="option7">pritamdeka/PubMedBERT-mnli-snli-scinli-scitail-mednli-stsb</label>
+                        
+                        <input type="radio" class="btn-check" name="options-base" id="option8" value="pritamdeka/S-PubMedBert-MS-MARCO" autocomplete="off">
+                        <label class="btn"for="option8">pritamdeka/S-PubMedBert-MS-MARCO</label>
+                        
+
+                    </div>
+                    <p class="lead" id="request-duration"></p>
+                </div>
+            </div>
+        </section>
+
+        <div class="text-center  container">
+
+            <div class="row" id="results-container">
+                
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Sonuç Detayı</h5>
+              <button type="button"  class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <!-- Burada sonuç detayı içeriğini ekleyin -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        
+            const searchButton = document.getElementById("search-button");
+            const loadingSpinner = document.getElementById("loading-spinner");
+            const apiUrl = "http://localhost:8080/patent"; // API URL'sini buraya ekleyin
+
+        
+            document.getElementById("search-button").addEventListener("click", function (e) {
+                e.preventDefault();
+
+                // Search butonunu devre dışı bırak
+                searchButton.setAttribute("disabled", true);
+                searchButton.style.display= "none";
+                // Yükleme göstergesini göster
+                loadingSpinner.style.display = "inline-block";
+
+                const selectedRadio = document.querySelector('input[name="options-base"]:checked');
+                const selectedValue = selectedRadio.value;
+
+                const searchInput = document.getElementById("search-input").value;
+                // API'ye istek yapılacak URL'i burada belirleyin
+                // İstek seçeneklerini oluşturun
+                const requestOptions = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query: searchInput, model: selectedValue }),
+                };
+
+
+
+                fetch(`${apiUrl}/search`, requestOptions)
+                    .then(response => response.json())
+                    .then(data => {
+                        // API yanıtını işleyin
+
+                        const requestDurationContainer = document.getElementById("request-duration");
+                        const embeddingTime = data.embedding_time;
+                        const searchTime = data.search_time;
+                        
+                        const requestDuration = `Vector Embedding süresi: ${embeddingTime} saniye, Vector DB Arama süresi: ${searchTime} saniye`;
+
+                        requestDurationContainer.innerHTML = requestDuration; // İstek süresini göster
+
+                        const resultsContainer = document.getElementById("results-container");
+                        resultsContainer.innerHTML = ""; // Önceki sonuçları temizle
+                        if (data.result.length === 0) 
+                        {
+                            resultsContainer.innerHTML = `<div class="col-md-12"><p class="lead text-body-secondary">Sonuç bulunamadı</p></div>`;
+                        }
+                        else
+                        {
+                            data.result.forEach(result => {
+                                // Sonuçları kartlara ekleyin
+                                const card = document.createElement("div");
+                                card.classList.add("col-md-12");
+                                card.innerHTML = `
+                                    <div class="col-lg-6 col-md-6 mx-auto mt-4">
+                                        <div class="card shadow-sm">
+                                            <div class="card-body">
+                                                <h5 class="card-title">${result.title}</h5>
+                                                <p class="card-text">${result.abstract}</p>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div class="btn-group">
+                                                        <button id="${result.patent_id}" class="btn btn-sm btn-outline-secondary modal-button">View Detail</button>
+                                                        <a href="https://patents.justia.com/patent/${result.patent_id}" target="_blank" class="btn btn-sm btn-outline-secondary">Original Site</a>
+                                                    </div>
+                                                    <small class="text-body-secondary">Score: ${result.score}</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                                resultsContainer.appendChild(card);
+                            });
+                        }
+                        // Search butonunu etkinleştir
+                        searchButton.removeAttribute("disabled");
+                        // Yükleme göstergesini gizle
+                        loadingSpinner.style.display = "none";
+                        searchButton.style.display= "inline-block";
+                        setModal();
+                    })
+                    .catch(error => {
+                        console.error("API Hatası:", error);
+                        searchButton.removeAttribute("disabled");
+                        loadingSpinner.style.display = "none";
+                        searchButton.style.display= "inline-block";
+
+                    });
+            });
+
+
+
+            function setModal(){
+                
+                const modalButtons = document.getElementsByClassName("modal-button");
+                console.log(modalButtons);
+
+                for (let i = 0; i < modalButtons.length; i++) {
+                    modalButtons[i].addEventListener("click", async function (e) {
+                        console.log("test");
+                        const resultId = e.target.id;
+                        const modal = new bootstrap.Modal(document.getElementById('myModal'));
+                        // Modal içeriğini burada güncelleyin (örneğin sonuç detayı)
+                        const modalTitle = document.querySelector('.modal-title');
+                        const modalBody = document.querySelector('.modal-body');
+                        
+                        try {
+                            const response = await fetch(`${apiUrl}/${resultId}`);
+                            if (!response.ok) {
+                                throw new Error("HTTP Hatası: " + response.status);
+                            }
+                            const data = await response.json();
+                            modalTitle.innerHTML = data.title;
+                            modalBody.innerHTML = data.abstract + "<br><br>" + data.paragraph;
+                        } catch (error) {
+                            modalTitle.innerHTML = "Hata";
+                            modalBody.innerHTML = "Patent bulunamadı";
+                        }
+
+
+                        modal.show();
+                    });
+                }
+                }
+            
+
+            
+        });
+    </script>
+
+
+
+    <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
