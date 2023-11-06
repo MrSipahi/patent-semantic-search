@@ -48,7 +48,7 @@ Bu API, vektör tabanlı metin araması yapmak için kullanılan bir Flask RESTf
 ```
 
 | Parametre | Tip     | Açıklama        | Default          
-| :-------- | :------- | :------------------------- | | :------------------------- |
+| :--------|:-------|:-------------------------|:---------|
 | `query` | `string` | **Gerekli**. Arama sorgusu | -
 | `model` | `string` | Kullanılacak vektör modeli | pritamdeka/BioBERT-mnli-snli-scinli-scitail-mednli-stsb
 | `limit` | `int` | Döndürülecek sonuç sayısı sınırı | 10
@@ -83,7 +83,7 @@ Body
 ```
 
 | Parametre | Tip     | Açıklama        | Default          
-| :-------- | :------- | :------------------------- | | :------------------------- |
+|:-----|:-----|:-------|:----|
 | `patent_id` | `int` | **Gerekli**. Getirilecek patentin kimliği. | -
 
 
@@ -102,8 +102,3 @@ Example Response
 HTML dosyasını bir web tarayıcısında açarak sayfanın tasarımını ve işlevselliğini görebilirsiniz. Sayfanın tasarımı Bootstrap kullanılarak oluşturulmuş ve arama sonuçları dinamik olarak gösterilebilir.
 
 Ayrıca, sayfanın içindeki JavaScript kodunu inceleyerek, arama butonuna tıkladığınızda ne tür işlemlerin gerçekleştiğini ve sonuçların nasıl gösterildiğini görebilirsiniz.
-
-
-
-
-
